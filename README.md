@@ -4,6 +4,8 @@
 
 🇬🇧 **English** · 🇫🇷 [Version française](README.fr.md)
 
+📄 Docs: [Command reference](#complete-command-reference) · [Examples](#examples-every-mode) · [Validation matrix](#validation-matrix) · [Service Mode scheduling](docs/service-mode.md)
+
 > **⚠️ Disclaimer — personal proof of concept.**
 > This is a **personal proof-of-concept** built by an individual. It is **NOT an
 > official Keeper Security product** and is **not supported, endorsed, reviewed,

@@ -4,6 +4,8 @@
 
 🇫🇷 **Français** · 🇬🇧 [English version](README.md)
 
+📄 Docs : [Référence des commandes](#référence-complète-des-commandes) · [Exemples](#exemples-tous-les-modes) · [Matrice de validation](#matrice-de-validation) · [Planification en mode service](docs/service-mode.fr.md)
+
 > **⚠️ Avertissement — preuve de concept personnelle.**
 > Ceci est une **preuve de concept personnelle** réalisée à titre individuel. Ce
 > **N'EST PAS un produit officiel Keeper Security** et n'est **ni pris en charge,
