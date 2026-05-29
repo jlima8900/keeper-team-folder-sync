@@ -1,0 +1,13 @@
+# Runtime state (per-operator, contains team/folder UIDs) -- never commit
+*-sync.json
+keeper-team-sync.json
+# Generated batch files
+*.batch
+# Keeper config / secrets
+.keeper/
+config.json
+# Python
+__pycache__/
+*.pyc
+*.tmp
+.venv/

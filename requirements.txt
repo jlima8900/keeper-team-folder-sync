@@ -1,0 +1,4 @@
+# Pinned to the version this tool was validated against. The tool depends on
+# INTERNAL keepercommander APIs (see README "Fragility") that change across
+# releases -- do not bump without re-validating against a live tenant.
+keepercommander==18.0.3
