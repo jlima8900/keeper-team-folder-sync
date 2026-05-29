@@ -4,7 +4,7 @@
 
 🇬🇧 **English** · 🇫🇷 [Version française](README.fr.md)
 
-📄 Docs: [Command reference](#complete-command-reference) · [Examples](#examples-every-mode) · [Validation matrix](#validation-matrix) · [Service Mode scheduling](docs/service-mode.md)
+📄 Docs: [Reading teams → propagating](#reading-teams-and-propagating) · [Command reference](#complete-command-reference) · [Examples](#examples-every-mode) · [Validation matrix](#validation-matrix) · [Service Mode scheduling](docs/service-mode.md)
 
 > **⚠️ Disclaimer — personal proof of concept.**
 > This is a **personal proof-of-concept** built by an individual. It is **NOT an
@@ -74,6 +74,70 @@ python3 gen_team_folder_batch.py --sync --state ~/keeper-team-sync.json \
     --node "Engineering" --prefix "Team-" --permissions full \
     --seed login --seed-login svc@example.com --include "Departaments"
 ```
+
+## Reading teams and propagating
+
+`--fetch-teams` is the **read** step. Via your persistent login it reads, live:
+
+- every enterprise **team** (display name, `team_uid`, node), and
+- the **existing shared folders** (so it can skip or repair them instead of duplicating).
+
+From that it builds a plan — **one shared folder per unique team name, granted to
+that team by UID**. What happens to the plan depends on the mode flag you add:
+
+| Add… | Result |
+|---|---|
+| `--dry-run` | Read + print the plan. **No changes.** This is your "which teams exist / what would happen" view. |
+| `--out FILE` | Read + write the plan as a batch file to review, then run later with `run-batch`. |
+| `--execute` | Read + **propagate now** (create folders, grant teams) — canary-gated. |
+
+> For repeatable/scheduled runs that also track state and flag removed teams, use
+> [`--sync`](#quick-start-stateful-sync--recommended) instead — same read, plus a state file.
+
+### Examples — from "just look" to "apply"
+
+```bash
+# A. READ + PREVIEW everything, no filter, no changes — see ALL teams the tool sees:
+python3 gen_team_folder_batch.py --fetch-teams --dry-run
+
+# B. READ narrowed to the real department teams, preview only:
+python3 gen_team_folder_batch.py --fetch-teams --include "Departaments" \
+    --prefix "Team-" --dry-run
+
+# C. READ scoped to ONE node (avoids cross-node same-name merges), preview:
+python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
+    --include "Departaments" --prefix "Team-" --dry-run
+
+# D. READ + GENERATE a batch file to review, then run it later:
+python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
+    --include "Departaments" --prefix "Team-" --permissions full \
+    --seed login --seed-login svc@example.com --out plan.batch
+#   review plan.batch, then in `keeper shell`:  run-batch plan.batch
+
+# E. READ + PROPAGATE now — create a folder per team, grant the team, seed a login:
+python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
+    --include "Departaments" --prefix "Team-" --permissions full \
+    --seed login --seed-login svc@example.com --execute
+
+# F. READ + PROPAGATE with a NOTE record instead of a login:
+python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
+    --include "Departaments" --prefix "Team-" \
+    --seed note --seed-text "Store shared team credentials here." --execute
+```
+
+### What the read prints (how to read it)
+
+```
+Persistent login OK as admin@example.com.
+--node 'Engineering' -> [<node_id>]
+9 unique team name(s) in node 'Engineering'; 0 with duplicate UIDs ...
+Filtered 26 -> 9 team(s).
+Plan: 9 new, 0 repaired, 18 grant(s).
+```
+
+- **`N unique team name(s) … M with duplicate UIDs`** — what the read found (`M` = names that exist in more than one node).
+- **`Filtered X -> Y`** — teams left after `--include`/`--exclude`.
+- **`Plan: N new, M repaired, K grant(s)`** — what propagation *would* do: `new` folders to create, `repaired` = existing folders that just get (re-)granted, `K` total grants (2 per name when a name spans two nodes).
 
 ## Complete command reference
 

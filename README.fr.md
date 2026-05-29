@@ -4,7 +4,7 @@
 
 🇫🇷 **Français** · 🇬🇧 [English version](README.md)
 
-📄 Docs : [Référence des commandes](#référence-complète-des-commandes) · [Exemples](#exemples-tous-les-modes) · [Matrice de validation](#matrice-de-validation) · [Planification en mode service](docs/service-mode.fr.md)
+📄 Docs : [Lire les équipes → propager](#lire-les-équipes-et-propager) · [Référence des commandes](#référence-complète-des-commandes) · [Exemples](#exemples-tous-les-modes) · [Matrice de validation](#matrice-de-validation) · [Planification en mode service](docs/service-mode.fr.md)
 
 > **⚠️ Avertissement — preuve de concept personnelle.**
 > Ceci est une **preuve de concept personnelle** réalisée à titre individuel. Ce
@@ -78,6 +78,70 @@ python3 gen_team_folder_batch.py --sync --state ~/keeper-team-sync.json \
     --node "Engineering" --prefix "Team-" --permissions full \
     --seed login --seed-login svc@example.com --include "Departaments"
 ```
+
+## Lire les équipes et propager
+
+`--fetch-teams` est l'étape de **lecture**. Via la connexion persistante, il lit en direct :
+
+- chaque **équipe** d'entreprise (nom affiché, `team_uid`, nœud), et
+- les **dossiers partagés existants** (pour les ignorer ou les réparer au lieu de dupliquer).
+
+Il en déduit un plan — **un dossier partagé par nom d'équipe unique, accordé à
+cette équipe par UID**. Le devenir du plan dépend du mode ajouté :
+
+| Ajouter… | Résultat |
+|---|---|
+| `--dry-run` | Lit + affiche le plan. **Aucune modification.** Vue « quelles équipes existent / que se passerait-il ». |
+| `--out FILE` | Lit + écrit le plan en fichier batch à relire, exécuté ensuite via `run-batch`. |
+| `--execute` | Lit + **propage maintenant** (crée les dossiers, accorde les accès) — avec garde-fou canary. |
+
+> Pour des exécutions répétées/planifiées avec suivi d'état et signalement des
+> équipes retirées, utiliser [`--sync`](#démarrage-rapide-synchronisation-avec-état--recommandé) — même lecture, plus un fichier d'état.
+
+### Exemples — de « juste regarder » à « appliquer »
+
+```bash
+# A. LIRE + APERÇU de tout, sans filtre, sans modification — voir TOUTES les équipes :
+python3 gen_team_folder_batch.py --fetch-teams --dry-run
+
+# B. LIRE en se limitant aux vraies équipes de département, aperçu seul :
+python3 gen_team_folder_batch.py --fetch-teams --include "Departaments" \
+    --prefix "Team-" --dry-run
+
+# C. LIRE limité à UN nœud (évite la fusion de noms identiques entre nœuds), aperçu :
+python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
+    --include "Departaments" --prefix "Team-" --dry-run
+
+# D. LIRE + GÉNÉRER un fichier batch à relire, exécuté plus tard :
+python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
+    --include "Departaments" --prefix "Team-" --permissions full \
+    --seed login --seed-login svc@example.com --out plan.batch
+#   relire plan.batch, puis dans `keeper shell` :  run-batch plan.batch
+
+# E. LIRE + PROPAGER maintenant — un dossier par équipe, accès accordé, seed login :
+python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
+    --include "Departaments" --prefix "Team-" --permissions full \
+    --seed login --seed-login svc@example.com --execute
+
+# F. LIRE + PROPAGER avec une NOTE au lieu d'un login :
+python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
+    --include "Departaments" --prefix "Team-" \
+    --seed note --seed-text "Stocker ici les identifiants partagés de l'équipe." --execute
+```
+
+### Ce qu'affiche la lecture (comment l'interpréter)
+
+```
+Persistent login OK as admin@example.com.
+--node 'Engineering' -> [<node_id>]
+9 unique team name(s) in node 'Engineering'; 0 with duplicate UIDs ...
+Filtered 26 -> 9 team(s).
+Plan: 9 new, 0 repaired, 18 grant(s).
+```
+
+- **`N unique team name(s) … M with duplicate UIDs`** — ce que la lecture a trouvé (`M` = noms présents dans plus d'un nœud).
+- **`Filtered X -> Y`** — équipes restantes après `--include`/`--exclude`.
+- **`Plan: N new, M repaired, K grant(s)`** — ce que la propagation *ferait* : `new` dossiers à créer, `repaired` = dossiers existants simplement (re)accordés, `K` accès au total (2 par nom quand un nom couvre deux nœuds).
 
 ## Référence complète des commandes
 
