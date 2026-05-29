@@ -127,7 +127,7 @@ python3 gen_team_folder_batch.py --sync --state ~/keeper-team-sync.json \
 python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
     --include "Departaments" --prefix "Team-" --permissions full \
     --seed login --seed-login svc@example.com --out plan.batch
-#   puis dans `keeper shell` :  batch plan.batch
+#   puis dans `keeper shell` :  run-batch plan.batch
 
 # 5. Ponctuel : lire en direct, EXÉCUTER immédiatement (avec canary) :
 python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
@@ -229,11 +229,11 @@ qu'**aucune commande destructive n'est jamais émise**.
 | Nettoyage des doublons (`rm -f` → Corbeille) | ✅ vérifié en réel |
 | Logique des fonctions pures (analyse, filtre, plan, seed) | ✅ 23 tests unitaires |
 | CI Python 3.9 / 3.11 / 3.13 | ✅ vert |
-| `--sync` **créant de nouveaux** dossiers/accès/enregistrements | ⚠️ **non exécuté en réel** (le locataire de test les avait déjà ; seul le no-op a tourné) |
-| Révocation réelle via `--prune-grants` | ⚠️ **dry-run uniquement** — jamais exécuté en réel |
-| Création réelle de `--seed note` (encryptedNotes) | ⚠️ chaîne testée en unitaire ; non créée en réel |
-| Chemin de la commande `batch` (générer → `keeper shell` `batch`) | ⚠️ non exécuté ; les mutations réelles ont utilisé `cli.do_command` ligne par ligne |
-| Branche « canary » de `--execute` dans l'outil | ⚠️ logique prouvée via un script jetable, pas via le `--execute` de l'outil |
+| `--sync` **créant de nouveaux** dossiers/accès/enregistrements | ✅ vérifié en réel (dossier `SYNCTEST-` : +1 dossier, +2 accès, +1 enregistrement) |
+| Révocation réelle via `--prune-grants` | ✅ vérifié en réel (un accès inter-nœud révoqué sur le dossier de test, 2→1) |
+| Création réelle de `--seed note` (encryptedNotes) | ✅ vérifié en réel |
+| Chemin de la commande `run-batch` (générer → `keeper shell` `run-batch`) | ✅ vérifié en réel — **la commande est `run-batch`, pas `batch`** |
+| Branche « canary » de `--execute` dans l'outil | ✅ vérifié en réel (canary déclenché, mot de passe `$GEN` 12 caractères) |
 | Multi-locataire / autres versions Commander / passage à l'échelle | ❌ non testé (throttling déjà observé à ~18 équipes) |
 | Validation sécurité du modèle `--seed login` partagé | ❌ nécessite une revue produit/sécurité |
 

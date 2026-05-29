@@ -123,7 +123,7 @@ python3 gen_team_folder_batch.py --sync --state ~/keeper-team-sync.json \
 python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
     --include "Departaments" --prefix "Team-" --permissions full \
     --seed login --seed-login svc@example.com --out plan.batch
-#   then in `keeper shell`:  batch plan.batch
+#   then in `keeper shell`:  run-batch plan.batch
 
 # 5. One-shot: fetch live, EXECUTE immediately (canary-gated):
 python3 gen_team_folder_batch.py --fetch-teams --node "Engineering" \
@@ -224,11 +224,11 @@ Honest status — what was actually exercised, and how.
 | Duplicate-record cleanup (`rm -f` → Trash) | ✅ live-verified |
 | Pure-function logic (parsing, filter, plan, seed) | ✅ 23 unit tests |
 | CI on Python 3.9 / 3.11 / 3.13 | ✅ green |
-| `--sync` **creating new** folders/grants/seeds from scratch | ⚠️ **not exercised live** (test tenant already had them; only the no-op path ran) |
-| `--prune-grants` actual revoke | ⚠️ **dry-run only** — never executed live |
-| `--seed note` (encryptedNotes) live creation | ⚠️ unit-tested string only; not created live |
-| `batch` command path (generate → `keeper shell` `batch`) | ⚠️ not run; live mutations used `cli.do_command` per line |
-| `--execute` canary branch in the tool | ⚠️ canary logic proven in a throwaway script, not via the tool's `--execute` |
+| `--sync` **creating new** folders/grants/seeds from scratch | ✅ live-verified (`SYNCTEST-` folder: +1 folder, +2 grants, +1 record) |
+| `--prune-grants` actual revoke | ✅ live-verified (revoked one cross-node grant on the test folder, 2→1) |
+| `--seed note` (encryptedNotes) live creation | ✅ live-verified |
+| `run-batch` command path (generate → `keeper shell` `run-batch`) | ✅ live-verified — **note: the command is `run-batch`, not `batch`** |
+| `--execute` canary branch in the tool | ✅ live-verified (canary fired, 12-char `$GEN` password) |
 | Multi-tenant / other Commander versions / scale | ❌ untested (throttling already seen at ~18 teams) |
 | Security sign-off on shared `--seed login` model | ❌ needs product/security review |
 
