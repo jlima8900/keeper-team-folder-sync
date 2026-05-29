@@ -202,6 +202,10 @@ State written to ~/keeper-team-sync.json (run #2).
   --include "Departaments" >> ~/keeper-sync.log 2>&1
 ```
 
+> **Session toujours active plutôt qu'une connexion à chaque exécution :** voir
+> [Planification en mode service](docs/service-mode.fr.md) — un modèle documenté
+> (non encore testé en réel avec cet outil) pour s'exécuter via l'API REST de Commander.
+
 ## Tests
 
 ```bash

@@ -198,6 +198,10 @@ State written to ~/keeper-team-sync.json (run #2).
   --include "Departaments" >> ~/keeper-sync.log 2>&1
 ```
 
+> **Always-warm session instead of per-run login:** see
+> [Service Mode scheduling](docs/service-mode.md) — a documented pattern (not yet
+> live-tested with this tool) for running via Commander's REST API.
+
 ## Tests
 
 ```bash
